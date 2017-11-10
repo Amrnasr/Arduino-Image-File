@@ -1,0 +1,58 @@
+#include <SD.h>
+
+File photoFile;
+const int buttonPin = 7;
+const int ledPin =  5;
+
+
+void setup(){
+
+ Serial.begin(115200); 
+
+ pinMode(buttonPin,INPUT); 
+ pinMode(ledPin,OUTPUT);
+
+ //Serial.println("initializing sd card");
+ pinMode(10,OUTPUT);          // CS pin of SD Card Shield
+
+ if (!SD.begin(10)) {
+   Serial.print("sd initialzation failed");
+   return;
+ }
+ //Serial.println("sd initialization done");
+} 
+
+
+void loop(){
+
+ while(1){
+   // Serial.println("press the button to send picture");
+   Serial.flush();    
+
+   while(digitalRead(buttonPin) == LOW);
+   if(digitalRead(buttonPin) == HIGH){
+     delay(50);
+
+     if(digitalRead(buttonPin) == HIGH){
+       delay(200);
+       File photoFile = SD.open("pic02.jpg");
+
+       if (photoFile) {
+         while (photoFile.position() < photoFile.size()) {
+
+           digitalWrite(ledPin,HIGH);                      
+           Serial.write(photoFile.read());
+         }
+
+         photoFile.close();
+         digitalWrite(ledPin,LOW);   
+       }  
+
+       else {
+         Serial.println("error sending photo");
+       }             
+     }
+     //Serial.println("photo sent");   
+   }
+ }
+}
